@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'LogsApp.apps.LogsappConfig',
+    'ShiftsApp.apps.ShiftsappConfig',
+    'UsersApp.apps.UsersappConfig',
 ]
 
 MIDDLEWARE = [
