@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login , logout
 from django.contrib import messages
 from UsersApp.models import User
 
@@ -20,3 +20,7 @@ def login_view(request):
             messages.error(request, "Nieprawidłowa nazwa użytkownika lub hasło.")
             
     return render(request, 'loginView.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
