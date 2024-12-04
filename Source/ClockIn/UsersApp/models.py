@@ -8,6 +8,7 @@ class Department(models.Model):
 
 class User(models.Model):
     username = models.CharField(max_length=100)
+    password = models.CharField(max_length=100, null=True)
     email = models.EmailField(max_length=100)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
