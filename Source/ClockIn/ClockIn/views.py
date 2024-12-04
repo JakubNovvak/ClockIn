@@ -1,4 +1,8 @@
 from django.shortcuts import render
 
-def widok_strony_glownej(request):
-    return render(request, 'homeView.html')
+def home_view(request):
+    aa = {
+        'user_id': request.user.id,  # ID zalogowanego użytkownika
+        'username': request.user.username,  # Nazwa użytkownika
+    }
+    return render(request, 'homeView.html', aa)

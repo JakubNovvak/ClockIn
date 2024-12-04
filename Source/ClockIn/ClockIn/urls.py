@@ -22,5 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('UsersApp.urls')),
     path('shifts/', include('ShiftsApp.urls')),
-    path('', views.widok_strony_glownej)
+    path('', views.home_view)
 ]
