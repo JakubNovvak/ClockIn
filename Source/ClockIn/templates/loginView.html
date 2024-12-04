@@ -13,7 +13,9 @@
         <br>
         
         <div style="display: flex; flex-direction: column; min-width: 350px;">
-            <form action="/" method="POST">
+            {% comment %} <form action="/users/login/" method="POST"> {% endcomment %}
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <label for="username">Nazwa użytkownika</label>
                     <input class="form-control" style="width: 100%; margin-top: 10px;" type="text" id="username" name="username" required>
