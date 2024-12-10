@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.sessions.models import Session
 from . import views
 
 urlpatterns = [
@@ -24,3 +25,8 @@ urlpatterns = [
     path('shifts/', include('ShiftsApp.urls')),
     path('', views.home_view)
 ]
+
+def clear_sessions_on_start():
+    Session.objects.all().delete()
+
+clear_sessions_on_start()
