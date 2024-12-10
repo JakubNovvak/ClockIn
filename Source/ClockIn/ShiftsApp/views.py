@@ -10,10 +10,12 @@ def shifts_view(request):
         "total_hours": 0,
         "total_minutes": 0,
         "error_message": "",
+        "selected_date": ""
     }
     
     if request.method == "POST":
         selected_date = request.POST.get("selected_date")
+        context["selected_date"] = request.POST.get("selected_date")
         if not selected_date:
             context["error_message"] = "Proszę wybrać datę."
             return render(request, "shiftsView.html", context)
@@ -45,8 +47,8 @@ def shifts_view(request):
                 })
 
             context["shifts"] = shifts_data
-            context["total_hours"] = total_minutes // 60
-            context["total_minutes"] = total_minutes % 60
+            context["total_hours"] = int(total_minutes // 60)
+            context["total_minutes"] = int(total_minutes % 60)
     
     return render(request, "shiftsView.html", context)
 

@@ -21,7 +21,7 @@
         {% csrf_token %}
         <label for="date">Wybierz datę:</label>
         <div style="display: flex; flex-direction: row;">
-            <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="date" name="selected_date">
+            <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="date" name="selected_date" value="{{selected_date}}">
             <button class="btn btn-dark" type="submit">Wyświetl godziny</button>
         </div>
     </form>
