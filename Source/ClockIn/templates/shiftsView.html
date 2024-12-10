@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
     {% include "navBar.html" %}
     <hr>
 
@@ -16,31 +17,29 @@
     <br>
     <br>
 
-    <!-- Shifts date form -->
-    <form action="/" method="POST">
-        <label for="date">Select Date:</label>
+    <form method="POST" action="{% url 'shifts_view' %}">
+        {% csrf_token %}
+        <label for="date">Wybierz datę:</label>
         <div style="display: flex; flex-direction: row;">
-            <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="date" name="selectedDate" value="2024-11-19">
+            <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="date" name="selected_date">
             <button class="btn btn-dark" type="submit">Wyświetl godziny</button>
         </div>
     </form>
-
     <br>
-
-    <!-- Czas przepracowany -->
-    <p style="color: green;">Czas przepracowany: 4 godz. i 30 min.</p>
-
-    <br>
-
-    <!-- Lista zmian z danego dnia -->
+    
+    {% if total_hours or total_minutes %}
+    <p style="color: green;">Czas przepracowany: {{ total_hours }} godz. i {{ total_minutes }} min.</p>
+    {% endif %}
+    
+    {% if shifts %}
     <ul>
-        <li>Zmiana od 08:00 do 12:00</li>
-        <li>Zmiana od 13:00 do 16:00</li>
-        <li>Zmiana od 18:00 do teraz</li>
+        {% for shift in shifts %}
+            <li>Zmiana od {{ shift.start_time }} do {{ shift.end_time|default:"teraz" }}</li>
+        {% endfor %}
     </ul>
+    {% else %}
+    <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
 
-    <!-- Jeśli brak zmian -->
-    <!-- <p style="color: red;">Brak zmian w wybranym dniu.</p> -->
-    </div>
 </body>
 </html>
