@@ -11,7 +11,7 @@
         <h2>Logowanie ClockIn</h2>
 
         <br>
-        
+        <p style="color: red;">{{ errorMessage }}</p>
         <div style="display: flex; flex-direction: column; min-width: 350px;">
             {% comment %} <form action="/users/login/" method="POST"> {% endcomment %}
             <form action="{% url 'login' %}" method="POST">
