@@ -5,6 +5,10 @@ from UsersApp.models import User
 
 # Create your views here.
 def login_view(request):
+    context = {
+        "errorMessage": ""
+    }
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -17,9 +21,10 @@ def login_view(request):
             return redirect('/')  # Przekierowanie na stronę główną po zalogowaniu
         else:
             print("Błąd logowania")
+            context["errorMessage"] = "Nieprawidłowa nazwa użytkownika lub hasło."
             messages.error(request, "Nieprawidłowa nazwa użytkownika lub hasło.")
             
-    return render(request, 'loginView.html')
+    return render(request, 'loginView.html', context)
 
 def logout_view(request):
     logout(request)
