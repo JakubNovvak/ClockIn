@@ -2,8 +2,11 @@ from django.shortcuts import render
 from django.utils.timezone import localtime
 from datetime import timedelta
 from .models import HourlyShift
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
+@login_required(login_url="/users/login")
 def shifts_view(request):
     context = {
         "shifts": [],
@@ -54,7 +57,7 @@ def shifts_view(request):
 
 # def shifts_view(request):
 #     return render(request, 'shiftsView.html')
-
+@login_required(login_url="/users/login")
 def manage_shifts_view(request):
     return render(request, 'manageShiftView.html')
 
