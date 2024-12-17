@@ -26,7 +26,7 @@ urlpatterns = [
     path('', views.home_view)
 ]
 
-def clear_sessions_on_start():
-    Session.objects.all().delete()
+# def clear_sessions_on_start():
+#     Session.objects.all().delete()
 
-clear_sessions_on_start()
+# clear_sessions_on_start()
