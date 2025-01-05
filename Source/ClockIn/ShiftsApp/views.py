@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.timezone import localtime
 from datetime import timedelta
 from .models import HourlyShift
@@ -59,25 +59,26 @@ def shifts_view(request):
 #     return render(request, 'shiftsView.html')
 @login_required(login_url="/users/login")
 def manage_shifts_view(request):
-    # ongoingShift = HourlyShift.objects.filter(
-    #     user=request.user,
-    #     end_time = None
-    # )
-    # if(ongoingShift):
-    #     return render(request, 'manageShiftView.html')
+    context = {
+        "ongoingShift" : None
+    }
+    ongoingShift = filterOngoingShift(request.user)
+    context["ongoingShift"] = ongoingShift
 
-    return render(request, 'manageShiftView.html')
+    return render(request, 'manageShiftView.html', context)
 
 @login_required(login_url="/users/login")
 def start_shift(request):
-    context = {
-        "start_date": None
-    }
     start_date = localtime()
-    context["start_date"] = start_date
     new_shift = HourlyShift(user = request.user,start_time=start_date)
     new_shift.save()
-    return render(request, 'manageShiftView.html', context)
+    return redirect('manageShiftsView')
 
+def filterOngoingShift(_user):
+    ongoingShift = HourlyShift.objects.filter(
+        user=_user,
+        end_time = None
+    ).first()
+    return ongoingShift
         
 
