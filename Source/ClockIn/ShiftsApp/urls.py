@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     path('shiftsView/', views.shifts_view, name="shifts_view"),
     path('manageShiftsView/', views.manage_shifts_view),
+    path('startShift/', views.start_shift, name="start_shift")
 ]
