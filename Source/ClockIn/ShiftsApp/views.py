@@ -75,7 +75,7 @@ def start_shift(request):
     }
     start_date = localtime()
     context["start_date"] = start_date
-    new_shift = HourlyShift(user = request.user,start_time=start_date, end_time=start_date, work_date = start_date)
+    new_shift = HourlyShift(user = request.user,start_time=start_date)
     new_shift.save()
     return render(request, 'manageShiftView.html', context)
 
