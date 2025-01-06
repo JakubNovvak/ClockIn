@@ -14,14 +14,22 @@
         <h1>Status twojej zmiany</h1>
         
         <!-- Jeśli ongoingShift == True -->
+        {% if not ongoingShift %}
         <br>
-        <p>Zmiana rozpoczęta o: 08:12</p>
+        <form action="{% url 'start_shift' %}" method="POST">
+            {% csrf_token %}
+            <button class="btn btn-dark" type="submit">Rozpocznij zmianę</button>
+        </form>
+        {% else %}
+        <p>Zmiana rozpoczęta o: {{ ongoingShift.start_time }}</p>
         
         <br>
         <!-- Przycisk do zakończenia trwającej zmiany -->
-        <form action="/" method="POST">
+        <form action="{% url 'end_shift' %}" method="POST">
+            {% csrf_token %}
             <button class="btn btn-dark" type="submit">Zakończ zmianę</button>
         </form>
+        {% endif %}
         
         <br><br><br>
         

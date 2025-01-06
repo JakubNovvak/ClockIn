@@ -7,8 +7,8 @@ class ShiftType(models.Model):
 class HourlyShift(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    work_date = models.DateField()
+    end_time = models.DateTimeField(null=True)
+    work_date = models.DateField(null=True)
 
 class CalendarShift(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
