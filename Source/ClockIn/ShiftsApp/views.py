@@ -62,7 +62,7 @@ def manage_shifts_view(request):
     context = {
         "ongoingShift" : None
     }
-    ongoingShift = filterOngoingShift(request.user)
+    ongoingShift = filterOngoingShiftToday(request.user)
     context["ongoingShift"] = ongoingShift
 
     return render(request, 'manageShiftView.html', context)
@@ -70,14 +70,23 @@ def manage_shifts_view(request):
 @login_required(login_url="/users/login")
 def start_shift(request):
     start_date = localtime()
-    new_shift = HourlyShift(user = request.user,start_time=start_date)
+    new_shift = HourlyShift(user = request.user,start_time=start_date,work_date=start_date)
     new_shift.save()
     return redirect('manageShiftsView')
 
-def filterOngoingShift(_user):
+@login_required(login_url="/users/login")
+def end_shift(request):
+    end_date = localtime()
+    shift_to_update = filterOngoingShiftToday(request.user)
+    shift_to_update.end_time = end_date
+    shift_to_update.save()
+    return redirect('manageShiftsView')
+
+def filterOngoingShiftToday(_user):
     ongoingShift = HourlyShift.objects.filter(
         user=_user,
-        end_time = None
+        end_time = None,
+        work_date = localtime().date()
     ).first()
     return ongoingShift
         

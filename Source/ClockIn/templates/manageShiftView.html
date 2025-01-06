@@ -22,12 +22,14 @@
         </form>
         {% else %}
         <p>Zmiana rozpoczęta o: {{ ongoingShift.start_time }}</p>
-        {% endif %}
+        
         <br>
         <!-- Przycisk do zakończenia trwającej zmiany -->
-        <form action="{% url 'shifts_view' %}" method="POST">
+        <form action="{% url 'end_shift' %}" method="POST">
+            {% csrf_token %}
             <button class="btn btn-dark" type="submit">Zakończ zmianę</button>
         </form>
+        {% endif %}
         
         <br><br><br>
         
