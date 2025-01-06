@@ -57,7 +57,7 @@ def shifts_view(request):
 
 # def shifts_view(request):
 #     return render(request, 'shiftsView.html')
-@login_required(login_url="/users/login")
+@login_required(login_url="/users/login") # trzeba dodać sprawdzanie czy zmiany z poprzednich dni zostały prawidłowo zakończone
 def manage_shifts_view(request):
     context = {
         "ongoingShift" : None
