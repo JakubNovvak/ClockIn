@@ -12,7 +12,9 @@
 
     <div style="margin-left: 30px;">
         <h1>Status twojej zmiany</h1>
-        
+        {% if errorMessage %}
+        <p style="color: red;"> {{ errorMessage }} </p>
+        {% endif %}
         <!-- Jeśli ongoingShift == True -->
         {% if not ongoingShift %}
         <br>

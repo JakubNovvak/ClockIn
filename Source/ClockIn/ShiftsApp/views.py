@@ -57,11 +57,16 @@ def shifts_view(request):
 
 # def shifts_view(request):
 #     return render(request, 'shiftsView.html')
-@login_required(login_url="/users/login") # trzeba dodać sprawdzanie czy zmiany z poprzednich dni zostały prawidłowo zakończone
+@login_required(login_url="/users/login") # Jak zrobić zmiany nocne?
 def manage_shifts_view(request):
     context = {
-        "ongoingShift" : None
+        "ongoingShift" : None,
+        "errorMessage" : None
     }
+    inclompleteShift = filterOngoingShiftsBeforeToday(request.user)
+    if(inclompleteShift):
+        errorMessage = "Masz zmiany, które nie zostały prawidłowo zakończone. Skontaktuj się z Administratorem."
+        context["errorMessage"] = errorMessage
     ongoingShift = filterOngoingShiftToday(request.user)
     context["ongoingShift"] = ongoingShift
 
@@ -70,7 +75,7 @@ def manage_shifts_view(request):
 @login_required(login_url="/users/login")
 def start_shift(request):
     start_date = localtime()
-    new_shift = HourlyShift(user = request.user,start_time=start_date,work_date=start_date)
+    new_shift = HourlyShift(user = request.user,start_time=start_date,work_date=start_date.date())
     new_shift.save()
     return redirect('manageShiftsView')
 
@@ -88,6 +93,14 @@ def filterOngoingShiftToday(_user):
         end_time = None,
         work_date = localtime().date()
     ).first()
+    return ongoingShift
+
+def filterOngoingShiftsBeforeToday(_user):
+    ongoingShift = HourlyShift.objects.filter(
+        user=_user,
+        end_time = None,
+        work_date__lt = localtime().date()
+    )
     return ongoingShift
         
 
