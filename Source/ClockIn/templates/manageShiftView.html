@@ -39,12 +39,12 @@
         
         <!-- Lista dzisiejszych zmian -->
         <ul>
-            <li>Od 08:00 - do 12:00</li>
-            <li>Od 13:00 - do 16:00</li>
-            <li>Od 18:00 - do teraz</li>
+            {% for shift in shifts %}
+            <li> od {{ shift.start_time }} do {{ shift.end_time|default:"teraz" }} </li>
+            {% endfor %}
         </ul>
         
-        <p style="color: green;">Przepracowano łącznie: 4 godz. i 30 min.</p>
+        <p style="color: green;">Przepracowano łącznie: {{ total_hours }} godz. i {{ total_minutes }} min.</p>
     </div>
 </body>
 </html>
