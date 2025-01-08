@@ -107,47 +107,6 @@ def end_shift(request):
     shift_to_update.save()
     return redirect('manageShiftsView')
 
-# @login_required(login_url="/users/login")
-# def calculate_salary(request):
-#     if request.method == "POST":
-#         start_date = request.POST.get("start_date")
-#         end_date = request.POST.get("end_date")
-#         hourly_rate = float(request.POST.get("hourly_rate"))
-
-#         try:
-#             if start_date > end_date:
-#                 return render(request, "calculateSalary.html", {
-#                     "error": "Data początkowa nie może być późniejsza niż data końcowa."
-#                 })
-
-#             shifts = HourlyShift.objects.filter(
-#                 user=request.user,
-#                 work_date__range=(start_date, end_date)
-#             )
-
-#             total_minutes = 0
-#             for shift in shifts:
-#                 if shift.end_time:
-#                     duration = shift.end_time - shift.start_time
-#                     total_minutes += duration.total_seconds() // 60
-
-#             total_hours = total_minutes / 60
-#             total_salary = total_hours * hourly_rate
-
-#             context = {
-#                 "total_hours": int(total_hours),
-#                 "total_minutes": int(total_minutes % 60),
-#                 "total_salary": round(total_salary, 2)
-#             }
-#             return render(request, "calculateSalary.html", context)
-
-#         except Exception as e:
-#             return render(request, "calculateSalary.html", {
-#                 "error": f"Wystąpił błąd: {str(e)}"
-#             })
-
-#     return render(request, "calculateSalary.html")
-
 @login_required(login_url="/users/login")
 def calculate_salary(request):
     context = {
