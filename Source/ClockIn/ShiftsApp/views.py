@@ -108,6 +108,7 @@ def end_shift(request):
     return redirect('manageShiftsView')
 
 
+
 # ---------------------FUNKCJE POMOCNICZE---------------------
 def filterOngoingShiftToday(_user):
     ongoingShift = HourlyShift.objects.filter(
