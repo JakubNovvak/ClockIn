@@ -47,6 +47,7 @@ def shifts_view(request):
             context["shifts"] = shifts_data
             context["total_hours"] = int(total_minutes // 60)
             context["total_minutes"] = int(total_minutes % 60)
+            
     
     return render(request, "shiftsView.html", context)
 
@@ -113,6 +114,7 @@ def manage_shifts_view(request):
     first_day_of_week = monthrange(year, month)[0]  # Dzień tygodnia, w którym zaczyna się miesiąc
     days = []
 
+
     # Dodaj puste dni na początku miesiąca, jeśli miesiąc zaczyna się od np. środy
     for _ in range(first_day_of_week):
         days.append(None)
@@ -127,6 +129,24 @@ def manage_shifts_view(request):
 
     # Podziel dni na tygodnie (7 dni na tydzień)
     weeks = [days[i:i+7] for i in range(0, len(days), 7)]
+
+    # Przygotuj dane dla shift_data
+    context["shifts_data"] = [
+        {
+            "day": day['day'],
+            "shifts": [
+                {
+                    "shift_type": shift.shift_type.shift_type_name,
+                    "start_time": shift.start_time,
+                    "end_time": shift.end_time,
+                }
+                for shift in day['shifts'] 
+            ]
+        }
+        for week in weeks
+        for day in week
+        if day and day['shifts']
+    ]
 
     # Dodaj dane kalendarza do kontekstu
     context["month_name"] = today.strftime("%B")
@@ -198,6 +218,7 @@ def calculate_salary(request):
         context["total_salary"] = round(total_salary, 2)
 
     return render(request, "calculateSalary.html", context)
+
 
 
 # ---------------------FUNKCJE POMOCNICZE---------------------

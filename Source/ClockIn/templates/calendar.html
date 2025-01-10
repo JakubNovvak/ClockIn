@@ -13,6 +13,7 @@
             text-align: center;
             padding: 10px;
             height: 50px;
+            width: 10px;
         }
         .empty {
             background-color: #f0f0f0;
@@ -61,8 +62,15 @@
             {% for week in weeks %}
                 <tr>
                     {% for day in week %}
-                        <td class="{% if day %}{% if day.shifts.count > 0 %}shift-type-{{ day.shifts.first.shift_type.id }}{% else %}empty{% endif %}{% else %}empty{% endif %}">
-                            {% if day %}{{ day.day }}{% endif %}
+                        <td class="{% if day %}{% if day.shifts.count > 0 %}shift-type-{{ day.shifts.first.shift_type.id }}{% else %}empty{% endif %}{% else %}empty{% endif %}" 
+                            {% if day and day.shifts.count > 0 %}
+                                data-day="{{ day.day }}"
+                                data-shifts="{{ day.shifts.all|join:", " }}" 
+                            {% endif %} 
+                            onclick="showShiftDetails(event)">
+                            {% if day %}
+                                {{ day.day }}
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
@@ -70,7 +78,21 @@
         </tbody>
     </table>
 
-    <!-- Legenda kolorów -->
+    <script>
+        function showShiftDetails(event) {
+            var dayCell = event.target;
+            var shiftsData = dayCell.getAttribute('data-shifts');
+            var day = dayCell.getAttribute('data-day');
+    
+            if (shiftsData) {
+                alert('Dzień: ' + day + '\nZmiany: ' + shiftsData);
+            } else {
+                alert('Brak zmian w tym dniu.');
+            }
+        }
+    </script>
+    
+
     <div class="legend">
         <div class="legend-item">
             <div class="legend-box shift-type-1"></div>
