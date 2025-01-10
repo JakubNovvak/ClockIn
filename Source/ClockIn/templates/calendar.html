@@ -1,0 +1,35 @@
+<div id="calendar">
+    {% for day in days_in_month %}
+        <div class="calendar-day" 
+             style="background-color: {{ day.shift_color|default:'lightblue' }}" 
+             onclick="showShiftInfo('{{ day.date }}')">
+            {{ day.day }}
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+    #calendar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .calendar-day {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .calendar-day:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    function showShiftInfo(date) {
+        alert("Dzień: " + date);
+    }
+</script>
