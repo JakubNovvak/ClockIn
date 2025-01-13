@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect
 from django.utils.timezone import localtime
 from datetime import timedelta
+from UsersApp.views import user_required
 from .models import HourlyShift
 from .models import CalendarShift
 from calendar import monthrange
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 
 # Create your views here.
 @login_required(login_url="/users/login")
+@user_passes_test(user_required, login_url='/users/admin')
 def shifts_view(request):
     context = {
         "shifts": [],
@@ -54,6 +57,7 @@ def shifts_view(request):
 # def shifts_view(request):
 #     return render(request, 'shiftsView.html')
 @login_required(login_url="/users/login") # Jak zrobić zmiany nocne?
+@user_passes_test(user_required, login_url='/users/admin')
 def manage_shifts_view(request):
     context = {
         "ongoingShift": None,
@@ -171,6 +175,7 @@ def end_shift(request):
     return redirect('manageShiftsView')
 
 @login_required(login_url="/users/login")
+@user_passes_test(user_required, login_url='/users/admin')
 def calculate_salary(request):
     context = {
         "total_hours": None,

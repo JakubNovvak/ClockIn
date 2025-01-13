@@ -1,0 +1,12 @@
+<nav class="navbar navbar-dark bg-dark">
+    <ul class="navbar-nav mr-auto" style="display: flex; flex-direction: row; justify-content: space-between; width: 35vw; margin-left: 20px;">
+        <li class="nav-item active"><a class="nav-link" href="/users/admin">Strona główna</a></li>
+        <li class="nav-item active"><a class="nav-link" href="/users/admin/addUser">Dodaj użytkownika</a></li>
+        <li class="nav-item active"><a class="nav-link" href="/users/admin/manageUsers">Zarządzaj użytkownikami</a></li>
+        <li class="nav-item active"><a class="nav-link" href="/users/admin/manageShifts">Zarządzaj zmianami</a></li>
+    </ul>
+    <ul class="navbar-nav ml-auto" style=" flex-direction: row; justify-content: space-between; width: 5vw; margin-right: 30px;">
+        <!-- <li class="nav-item active"><a class="nav-link" href="{% url 'login' %}">Zaloguj się</a></li> -->
+        <li class="nav-item active"><a class="nav-link" href="{% url 'logout' %}">Wyloguj się</a></li>
+    </ul>
+</nav>
