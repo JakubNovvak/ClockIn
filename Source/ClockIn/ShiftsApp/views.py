@@ -3,7 +3,10 @@ from django.utils.timezone import localtime
 from datetime import timedelta
 from UsersApp.views import user_required
 from .models import HourlyShift
+from .models import CalendarShift
+from calendar import monthrange
 from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 
 # Create your views here.
@@ -47,6 +50,7 @@ def shifts_view(request):
             context["shifts"] = shifts_data
             context["total_hours"] = int(total_minutes // 60)
             context["total_minutes"] = int(total_minutes % 60)
+            
     
     return render(request, "shiftsView.html", context)
 
@@ -56,29 +60,32 @@ def shifts_view(request):
 @user_passes_test(user_required, login_url='/users/admin')
 def manage_shifts_view(request):
     context = {
-        "ongoingShift" : None,
-        "errorMessage" : None,
-        "shifts" : None,
+        "ongoingShift": None,
+        "errorMessage": None,
+        "shifts": None,
         "total_hours": None,
-        "totam_minutes": None
+        "total_minutes": None,
+        "month_name": None,
+        "year": None,
+        "weeks": None,
     }
-    inclompleteShift = filterOngoingShiftsBeforeToday(request.user)
-    if(inclompleteShift):
+
+    # Sprawdzenie niezakończonych zmian
+    incompleteShift = filterOngoingShiftsBeforeToday(request.user)
+    if incompleteShift:
         errorMessage = "Masz zmiany, które nie zostały prawidłowo zakończone. Skontaktuj się z Administratorem."
         context["errorMessage"] = errorMessage
+
+    # Sprawdzenie bieżącej zmiany
     ongoingShift = filterOngoingShiftToday(request.user)
-    if(ongoingShift):
-        # start_time = localtime(ongoingShift.start_time)
-        # end_time = localtime(ongoingShift.end_time) if ongoingShift.end_time else None
-        # ongoingShift.start_time = start_time.strftime("%H:%M")
-        # ongoingShift.end_time = end_time.strftime("%H:%M") if end_time else "teraz"
+    if ongoingShift:
         convertTimeFormatToHH_MM(ongoingShift)
     
     context["ongoingShift"] = ongoingShift
 
+    # Pobierz dane dotyczące zmian na dzisiaj
     today = localtime().date()
     shifts = getUserShiftsOfTheDay(request.user, today)
-    # shifts_data = convertTimeFormatToHH_MM(shifts)
     shifts_data = []
     total_minutes = 0
     for shift in shifts:
@@ -90,9 +97,66 @@ def manage_shifts_view(request):
             "start_time": shift.start_time,
             "end_time": shift.end_time
         })
+    
     context["shifts"] = shifts_data
     context["total_hours"] = int(total_minutes // 60)
     context["total_minutes"] = int(total_minutes % 60)
+
+    # Generowanie kalendarza
+    month = today.month
+    year = today.year
+
+    # Pobierz dane dotyczące zmian dla wybranego miesiąca
+    calendar_shifts = CalendarShift.objects.filter(
+        user=request.user,
+        shift_date__month=month,
+        shift_date__year=year
+    )
+
+    # Przygotuj dane kalendarza
+    num_days_in_month = monthrange(year, month)[1]  # Liczba dni w miesiącu
+    first_day_of_week = monthrange(year, month)[0]  # Dzień tygodnia, w którym zaczyna się miesiąc
+    days = []
+
+
+    # Dodaj puste dni na początku miesiąca, jeśli miesiąc zaczyna się od np. środy
+    for _ in range(first_day_of_week):
+        days.append(None)
+
+    # Dodaj dni miesiąca
+    for day in range(1, num_days_in_month + 1):
+        day_shifts = calendar_shifts.filter(shift_date__day=day)
+        days.append({
+            'day': day,
+            'shifts': day_shifts,
+        })
+
+    # Podziel dni na tygodnie (7 dni na tydzień)
+    weeks = [days[i:i+7] for i in range(0, len(days), 7)]
+
+    # Przygotuj dane dla shift_data
+    context["shifts_data"] = [
+        {
+            "day": day['day'],
+            "shifts": [
+                {
+                    "shift_type": shift.shift_type.shift_type_name,
+                    "start_time": shift.start_time,
+                    "end_time": shift.end_time,
+                }
+                for shift in day['shifts'] 
+            ]
+        }
+        for week in weeks
+        for day in week
+        if day and day['shifts']
+    ]
+
+    # Dodaj dane kalendarza do kontekstu
+    context["month_name"] = today.strftime("%B")
+    context["year"] = year
+    context["weeks"] = weeks
+
     return render(request, 'manageShiftView.html', context)
 
 @login_required(login_url="/users/login")
@@ -159,6 +223,7 @@ def calculate_salary(request):
         context["total_salary"] = round(total_salary, 2)
 
     return render(request, "calculateSalary.html", context)
+
 
 
 # ---------------------FUNKCJE POMOCNICZE---------------------
