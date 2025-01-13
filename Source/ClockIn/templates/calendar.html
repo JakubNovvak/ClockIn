@@ -78,21 +78,6 @@
         </tbody>
     </table>
 
-    <script>
-        function showShiftDetails(event) {
-            var dayCell = event.target;
-            var shiftsData = dayCell.getAttribute('data-shifts');
-            var day = dayCell.getAttribute('data-day');
-    
-            if (shiftsData) {
-                alert('Dzień: ' + day + '\nZmiany: ' + shiftsData);
-            } else {
-                alert('Brak zmian w tym dniu.');
-            }
-        }
-    </script>
-    
-
     <div class="legend">
         <div class="legend-item">
             <div class="legend-box shift-type-1"></div>
