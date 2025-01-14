@@ -4,8 +4,15 @@ from datetime import timedelta, datetime
 from UsersApp.views import user_required, admin_required
 from .models import HourlyShift, CalendarShift, ShiftType
 from UsersApp.models import User
+from UsersApp.views import user_required
 from calendar import monthrange
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import FileResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
+from reportlab.lib.colors import black
+
 
 # Create your views here.
 @login_required(login_url="/users/login")
@@ -71,7 +78,7 @@ def manage_shifts_view(request):
     # Sprawdzenie niezakończonych zmian
     incompleteShift = filterOngoingShiftsBeforeToday(request.user)
     if incompleteShift:
-        errorMessage = "Masz zmiany, które nie zostały prawidłowo zakończone. Skontaktuj się z Administratorem."
+        errorMessage = "Masz zmiany, które nie zostaly prawidlowo zakończone. Skontaktuj się z Administratorem."
         context["errorMessage"] = errorMessage
 
     # Sprawdzenie bieżącej zmiany
@@ -186,6 +193,7 @@ def calculate_salary(request):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
         hourly_rate = request.POST.get("hourly_rate")
+        action = request.POST.get("action")
 
         if not start_date or not end_date or not hourly_rate:
             context["error"] = "Wszystkie pola (daty i stawka godzinowa) są wymagane."
@@ -207,20 +215,77 @@ def calculate_salary(request):
         )
 
         total_minutes = 0
+        total_salary = 0
+        shift_details = []
+
         for shift in shifts:
             if shift.end_time:
                 duration = shift.end_time - shift.start_time
-                total_minutes += duration.total_seconds() // 60
+                shift_minutes = duration.total_seconds() // 60
+                shift_hours = shift_minutes / 60
+                shift_salary = shift_hours * hourly_rate
 
-        # Obliczenia
+                total_minutes += shift_minutes
+                total_salary += shift_salary
+
+                convertTimeFormatToHH_MM(shift)
+
+                shift_details.append({
+                    "work_date": shift.work_date,
+                    "start_time": shift.start_time,
+                    "end_time": shift.end_time,
+                    "hours": int(shift_hours),
+                    "minutes": int(shift_minutes % 60),
+                    "salary": round(shift_salary, 2)
+                })
+
         total_hours = total_minutes / 60
-        total_salary = total_hours * hourly_rate
-
         context["total_hours"] = int(total_hours)
         context["total_minutes"] = int(total_minutes % 60)
         context["total_salary"] = round(total_salary, 2)
+        context["shift_details"] = shift_details
+
+        # Generowanie raportu PDF
+        if action == "download":
+            buffer = io.BytesIO()
+            p = canvas.Canvas(buffer, pagesize=letter)
+
+            # Naglówek
+            p.setFont("Helvetica-Bold", 16)
+            p.drawString(100, 750, "Raport wynagrodzenia")
+            p.setFont("Helvetica", 12)
+            p.drawString(100, 730, f"Uzytkownik: {request.user.first_name} {request.user.last_name}")
+            p.drawString(100, 710, f"Okres od: {start_date} do: {end_date}")
+            p.drawString(100, 690, f"Przepracowane godziny: {int(total_hours)} godz. {int(total_minutes % 60)} min.")
+            p.drawString(100, 670, f"Stawka godzinowa: {hourly_rate} zl")
+            p.drawString(100, 650, f"Laczne wynagrodzenie: {round(total_salary, 2)} zl")
+
+            # Linie oddzielające sekcje
+            p.setStrokeColor(black)
+            p.setLineWidth(1)
+            p.line(50, 640, 550, 640)
+
+            # Szczególy zmian
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(100, 620, "Szczegoly zmian:")
+            p.setFont("Helvetica", 10)
+
+            y_position = 600
+            for shift in shift_details:
+                p.drawString(100, y_position, f"{shift['work_date']} {shift['start_time']} - {shift['end_time']}: "
+                                             f"{shift['hours']} godz. {shift['minutes']} min. - {shift['salary']} zl")
+                y_position -= 15
+
+            # Zakończenie strony
+            p.showPage()
+            p.save()
+            buffer.seek(0)
+
+            # Zwrócenie pliku PDF jako odpowiedź
+            return FileResponse(buffer, as_attachment=True, filename="raport_wynagrodzenia.pdf")
 
     return render(request, "calculateSalary.html", context)
+
 
 @login_required(login_url="/users/login")
 @user_passes_test(admin_required, login_url='/')
