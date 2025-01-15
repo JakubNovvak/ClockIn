@@ -57,7 +57,9 @@
             <button class="btn btn-dark" type="submit">Zatwierdź</button>
         </form>
         {% if errorMessage %}
-        <p style="color: red;">{{ errorMessage }}</p>
+        <div class="alert alert-danger" style="max-width: 300px; margin-top: 15px;">
+            {{ errorMessage }}
+        </div>
         {% endif %}
     </div>
 </body>

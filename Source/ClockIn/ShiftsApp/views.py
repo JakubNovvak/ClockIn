@@ -3,7 +3,7 @@ from django.utils.timezone import localtime
 from datetime import timedelta, datetime
 from UsersApp.views import user_required, admin_required
 from .models import HourlyShift, CalendarShift, ShiftType
-from UsersApp.models import User
+from UsersApp.models import User, Department
 from UsersApp.views import user_required
 from calendar import monthrange
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -340,6 +340,63 @@ def manage_schedule(request):
             context["errorMessage"] = "Wszystkie pola są wymagane"
         
     return render(request, "manageScheduleView.html", context)
+
+@login_required(login_url="/users/login")
+@user_passes_test(admin_required, login_url='/')
+def get_user_salary(request):
+    context = {
+        "departments" : [],
+        "users": [],
+        "salary": None,
+        "errorMessage": None
+    }
+    departments = Department.objects.all()
+    context["departments"] = departments
+    selected_department_id = request.GET.get("department_id")
+    if selected_department_id:
+        users = User.objects.filter(department_id=selected_department_id, is_superuser=False)
+    else:
+        users = User.objects.filter(is_superuser=False)
+    context["users"] = users
+    
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        
+        if not user_id or not start_date or not end_date:
+            context["errorMessage"] = "Proszę wybrać użytkownika oraz zakres dat."
+            return render(request, "allUsersSalaryView.html", context)
+        if start_date > end_date:
+            context["errorMessage"] = "Data początkowa nie może być późniejsza niż końcowa."
+            return render(request, "allUsersSalaryView.html", context)
+        user = User.objects.get(id=user_id)
+        
+        shifts = HourlyShift.objects.filter(
+            user=user,
+            work_date__range = (start_date, end_date)
+        )
+        if not shifts.exists():
+            context["errorMessage"] = "Brak zmian dla wybranego użytkownika i miesiąca."
+            return render(request, "allUsersSalaryView.html", context)
+            
+        total_minutes = 0
+        total_salary = 0
+        hourly_rate = user.hourly_rate
+
+        for shift in shifts:
+            if shift.end_time:
+                duration = shift.end_time - shift.start_time
+                shift_minutes = duration.total_seconds() // 60
+                shift_hours = shift_minutes / 60
+                shift_salary = shift_hours * hourly_rate
+
+                total_minutes += shift_minutes
+                total_salary += shift_salary
+                
+        context["salary"] = round(total_salary, 2)
+    return render(request, "allUsersSalaryView.html", context)
+
 
 # ---------------------FUNKCJE POMOCNICZE--------------------------
 def filterOngoingShiftToday(_user):
