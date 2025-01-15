@@ -348,6 +348,9 @@ def get_user_salary(request):
         "departments" : [],
         "users": [],
         "salary": None,
+        "start_date": None,
+        "end_date": None,
+        "selected_user": None,
         "errorMessage": None
     }
     departments = Department.objects.all()
@@ -395,6 +398,10 @@ def get_user_salary(request):
                 total_salary += shift_salary
                 
         context["salary"] = round(total_salary, 2)
+        context["start_date"] = start_date
+        context["end_date"] = end_date
+        context["selected_user"] = user
+
     return render(request, "allUsersSalaryView.html", context)
 
 
