@@ -8,5 +8,6 @@ urlpatterns = [
     path('startShift/', views.start_shift, name="start_shift"),
     path('endShift/', views.end_shift, name="end_shift"),
     path('calculateSalary/', views.calculate_salary, name="calculate_salary"),
-    path('admin/manageSchedule/', views.manage_schedule, name="manage_schedule")
+    path('admin/manageSchedule/', views.manage_schedule, name="manage_schedule"),
+    path('admin/usersSalary/', views.get_user_salary, name="get_user_salary")
 ]
