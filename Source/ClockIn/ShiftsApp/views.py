@@ -345,7 +345,7 @@ def manage_schedule(request):
         
     return render(request, "manageScheduleView.html", context)
 
-# ---------------------FUNKCJE POMOCNICZE---------------------
+# ---------------------FUNKCJE POMOCNICZE--------------------------
 def filterOngoingShiftToday(_user):
     ongoingShift = HourlyShift.objects.filter(
         user=_user,
