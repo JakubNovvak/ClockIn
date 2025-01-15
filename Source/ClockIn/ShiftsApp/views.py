@@ -192,17 +192,13 @@ def calculate_salary(request):
     if request.method == "POST":
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
-        hourly_rate = request.POST.get("hourly_rate")
+        hourly_rate = request.user.hourly_rate
         action = request.POST.get("action")
 
-        if not start_date or not end_date or not hourly_rate:
-            context["error"] = "Wszystkie pola (daty i stawka godzinowa) są wymagane."
-            return render(request, "calculateSalary.html", context)
-
-        try:
-            hourly_rate = float(hourly_rate)
-        except ValueError:
-            context["error"] = "Stawka godzinowa musi być liczbą."
+        print(hourly_rate)
+        
+        if not start_date or not end_date:
+            context["error"] = "Wszystkie pola są wymagane."
             return render(request, "calculateSalary.html", context)
 
         if start_date > end_date:
