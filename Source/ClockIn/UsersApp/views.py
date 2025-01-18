@@ -56,8 +56,6 @@ def admin_add_user(request):
         'requestState': True
     }
 
-    # TODO: logika dodawania użytkownika
-
     if request.method == "POST":
 
         # TODO: Hashowanie hasła w bazie danych
