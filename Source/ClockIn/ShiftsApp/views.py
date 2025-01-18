@@ -14,7 +14,6 @@ import io
 from reportlab.lib.colors import black
 
 
-# Create your views here.
 @login_required(login_url="/users/login")
 @user_passes_test(user_required, login_url='/users/admin')
 def shifts_view(request):
@@ -285,64 +284,6 @@ def calculate_salary(request):
 
 @login_required(login_url="/users/login")
 @user_passes_test(admin_required, login_url='/')
-def manage_schedule(request):
-    context = {
-        "users": [],
-        "shift_types": ShiftType.objects.all(),
-        "errorMessage": None
-    }
-    users = User.objects.filter(
-        is_superuser = 0  
-    )
-    context["users"] = users
-    
-    if request.method == "POST":
-        user_id = request.POST.get("user_id")
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        shift_type_id = request.POST.get("shift_type_id")
-        start_time = request.POST.get("start_time")
-        end_time = request.POST.get("end_time")
-        
-        if start_date > end_date:
-            context["errorMessage"] = "Data początkowa nie może być późniejsza niż końcowa."
-            return render(request, "manageScheduleView.html", context)
-        if end_time < start_time:
-            context["errorMessage"] = "Godzina rozpoczęcia nie może być późniejsza niż godzina zakończenia."
-            return render(request, "manageScheduleView.html", context)
-        
-        if user_id and start_date and end_date and shift_type_id and start_time and end_time:
-            user = User.objects.get(id=user_id)
-            shift_type = ShiftType.objects.get(id=shift_type_id)
-            
-            overlapping_shifts = CalendarShift.objects.filter(
-                user=user,
-                shift_date__range=(start_date, end_date)
-            )
-            if overlapping_shifts.exists():
-                context["errorMessage"] = "Istnieją już zmiany w wybranym zakresie dat dla tego użytkownika"
-                return render(request, "manageScheduleView.html", context)
-            
-            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-            
-            current_date = start_date_obj
-            while current_date <= end_date_obj:
-                CalendarShift.objects.create(
-                    user=user,
-                    shift_date=current_date,
-                    start_time=start_time,
-                    end_time=end_time,
-                    shift_type=shift_type
-                )
-                current_date += timedelta(days=1)
-        else:
-            context["errorMessage"] = "Wszystkie pola są wymagane"
-        
-    return render(request, "manageScheduleView.html", context)
-
-@login_required(login_url="/users/login")
-@user_passes_test(admin_required, login_url='/')
 def get_user_salary(request):
     context = {
         "departments" : [],
@@ -403,6 +344,79 @@ def get_user_salary(request):
         context["selected_user"] = user
 
     return render(request, "allUsersSalaryView.html", context)
+
+# ------------------FUNKCJE ADMINISTRATORA ------------------------
+
+
+@login_required(login_url="/users/login")
+@user_passes_test(admin_required, login_url='/')
+def manage_schedule(request):
+    context = {
+        "users": [],
+        "shift_types": ShiftType.objects.all(),
+        "errorMessage": None
+    }
+    users = User.objects.filter(
+        is_superuser = 0  
+    )
+    context["users"] = users
+    
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        shift_type_id = request.POST.get("shift_type_id")
+        start_time = request.POST.get("start_time")
+        end_time = request.POST.get("end_time")
+        
+        if start_date > end_date:
+            context["errorMessage"] = "Data początkowa nie może być późniejsza niż końcowa."
+            return render(request, "manageScheduleView.html", context)
+        if end_time < start_time:
+            context["errorMessage"] = "Godzina rozpoczęcia nie może być późniejsza niż godzina zakończenia."
+            return render(request, "manageScheduleView.html", context)
+        
+        if user_id and start_date and end_date and shift_type_id and start_time and end_time:
+            user = User.objects.get(id=user_id)
+            shift_type = ShiftType.objects.get(id=shift_type_id)
+            
+            overlapping_shifts = CalendarShift.objects.filter(
+                user=user,
+                shift_date__range=(start_date, end_date)
+            )
+            if overlapping_shifts.exists():
+                context["errorMessage"] = "Istnieją już zmiany w wybranym zakresie dat dla tego użytkownika"
+                return render(request, "manageScheduleView.html", context)
+            
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            
+            current_date = start_date_obj
+            while current_date <= end_date_obj:
+                CalendarShift.objects.create(
+                    user=user,
+                    shift_date=current_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    shift_type=shift_type
+                )
+                current_date += timedelta(days=1)
+        else:
+            context["errorMessage"] = "Wszystkie pola są wymagane"
+        
+    return render(request, "manageScheduleView.html", context)
+
+
+@login_required(login_url="/users/login")
+@user_passes_test(admin_required, login_url='/')
+def admin_manage_shifts(request):
+    context = {
+
+    }
+
+    # TODO: logika zarządzania zmianami użytkownika
+
+    return render(request, "adminManageShifts.html", context)
 
 
 # ---------------------FUNKCJE POMOCNICZE--------------------------
