@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wynagrodzenie pracowników</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    {% include "adminNavBar.html" %}
+    <hr>
+    <div style="margin-left: 30px;">
+        <div class="row">
+            <h1>Wynagrodzenie pracowników</h1>
+            <div class="col-md-5">
+                <!-- Filtrowanie działu -->
+                <form method="GET" action="{% url 'get_user_salary' %}">
+                    <label for="department_id">Wybierz dział:</label>
+                    <select class="form-select" style="max-width: 300px; margin-bottom: 15px;" name="department_id" id="department_id" onchange="this.form.submit()">
+                        <option value="">Wszystkie</option>
+                        {% for department in departments %}
+                            <option value="{{ department.id }}" {% if request.GET.department_id == department.id|stringformat:"s" %}selected{% endif %}>
+                                {{ department.department_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <!-- Formularz obliczania wynagrodzenia -->
+                <form method="POST" action="{% url 'get_user_salary' %}">
+                    {% csrf_token %}
+                    {% comment %} <label for="user_id">Wybierz użytkownika:</label>
+                    <select class="form-select" style="max-width: 300px; margin-bottom: 15px;" name="user_id" id="user_id" required>
+                        <option value="">Wybierz użytkownika</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select> {% endcomment %}
+                    <label for="users">Wybierz użytkownika:</label>
+                    <div id="users">
+                        {% for user in users %}
+                        <div style="margin-bottom: 10px;">
+                            <label>
+                                <input type="radio" name="user_id" value="{{ user.id }}" required>
+                                {{ user.first_name }} {{ user.last_name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <label for="start_date">Wybierz datę początkową:</label>
+                    <div style="display: flex; flex-direction: row; margin-bottom: 10px;">
+                        <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="start_date" name="start_date">
+                    </div>
+                    
+                    <label for="end_date">Wybierz datę końcową:</label>
+                    <div style="display: flex; flex-direction: row; margin-bottom: 10px;">
+                        <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="end_date" name="end_date">
+                    </div>
+                    
+                    <button class="btn btn-dark" type="submit">Oblicz wynagrodzenie</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                {% if salary %}
+                <div class="alert alert-success">
+                    Wynagrodzenie pracownika {{ selected_user.first_name }} {{ selected_user.last_name}}: <strong>{{ salary }} zł</strong> <br>
+                    Okres od: {{ start_date}} do {{end_date}} <br>
+                    Stawka godzinowa: {{ user.hourly_rate }} zł
+                </div>
+                {% endif %}
+                {% if errorMessage %}
+                <div class="alert alert-danger">
+                    {{ errorMessage }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

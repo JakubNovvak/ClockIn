@@ -27,12 +27,9 @@
                 <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="date" id="end_date" name="end_date">
             </div>
             
-            <label for="hourly_rate">Podaj stawkę godzinową (zł):</label>
-            <div style="display: flex; flex-direction: row; margin-bottom: 10px;">
-                <input class="form-control" style="max-width: 200px; margin-right: 10px;" type="number" id="hourly_rate" name="hourly_rate" step="0.01">
-            </div>
             
-            <button class="btn btn-dark" type="submit">Oblicz wynagrodzenie</button>
+            <button class="btn btn-dark" type="submit" name="action" value="calculate">Oblicz wynagrodzenie</button>
+            <button class="btn btn-dark" type="submit" name="action" value="download">Pobierz podsumowanie</button>
         </form>
         <br>
         
