@@ -52,10 +52,27 @@ def admin_view(request):
 @user_passes_test(admin_required, login_url='/')
 def admin_add_user(request):
     context = {
-        
+        'responseMessage': None,
+        'requestState': True
     }
 
     # TODO: logika dodawania użytkownika
+
+    if request.method == "POST":
+
+        # TODO: Hashowanie hasła w bazie danych
+        new_user = User(
+            username = request.POST.get("username"), 
+            first_name = request.POST.get("name"),
+            last_name = request.POST.get("surname"), 
+            email = request.POST.get("email"),
+            password = request.POST.get("password"),
+            hourly_rate = request.POST.get("hourlyRate"),
+        )
+
+        new_user.save()
+        
+        context['responseMessage'] = f"Pomyślnie dodano użytkownika {request.POST.get("name")} {request.POST.get("surname")}."
 
     return render(request, 'adminAddUser.html', context)
 
