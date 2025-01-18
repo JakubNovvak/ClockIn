@@ -46,3 +46,29 @@ def admin_view(request):
         'username': request.user.username,
     }
     return render(request, 'adminHomeView.html', context)
+
+
+@login_required(login_url="/users/addUser")
+@user_passes_test(admin_required, login_url='/')
+def admin_add_user(request):
+    context = {
+        
+    }
+
+    # TODO: logika dodawania użytkownika
+
+    return render(request, 'adminAddUser.html', context)
+
+
+@login_required(login_url="/users/manageUsers")
+@user_passes_test(admin_required, login_url='/')
+def admin_manage_users(request):
+    context = {
+        
+    }
+
+    # TODO: logika zarządzania użytkownikami
+
+    return render(request, 'adminManageUsers.html', context)
+
+
