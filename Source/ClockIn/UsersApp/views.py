@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login , logout
 from django.contrib import messages
 from UsersApp.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 def admin_required(user):
@@ -64,7 +65,7 @@ def admin_add_user(request):
             first_name = request.POST.get("name"),
             last_name = request.POST.get("surname"), 
             email = request.POST.get("email"),
-            password = request.POST.get("password"),
+            password = make_password(request.POST.get("password")), # Hashowanie hasła
             hourly_rate = request.POST.get("hourlyRate"),
         )
 
