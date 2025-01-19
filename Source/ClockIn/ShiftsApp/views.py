@@ -422,10 +422,13 @@ def admin_manage_shifts(request):
 
 
     context['users'] = User.objects.all()
-    context["selected_user_id"] = int(request.GET.get('userId'))
+    #context["selected_user_id"] = int(request.GET.get('userId'))
 
     if request.GET.get('userId'):
+
+        context["selected_user_id"] = int(request.GET.get('userId'))
         context['shifts'] = HourlyShift.objects.filter(user=User.objects.get(id=request.GET.get('userId')))
+
         for shift in context['shifts']:
             shift.work_date = shift.work_date.strftime('%Y-%m-%d')
             shift.start_time = shift.start_time.strftime('%H:%M')
