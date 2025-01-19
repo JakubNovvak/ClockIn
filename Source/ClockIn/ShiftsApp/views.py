@@ -411,10 +411,25 @@ def manage_schedule(request):
 @user_passes_test(admin_required, login_url='/')
 def admin_manage_shifts(request):
     context = {
-
+        'users': [],
+        'shifts': [],
+        'selected_user_id': None
     }
 
-    # TODO: logika zarządzania zmianami użytkownika
+    # TODO: Obsługa edytowania zmian użytkownika
+    if request.method == 'POST':
+        print("Próba zapisania zmian w formularzu zmiany użytkownika.")
+
+
+    context['users'] = User.objects.all()
+    context["selected_user_id"] = int(request.GET.get('userId'))
+
+    if request.GET.get('userId'):
+        context['shifts'] = HourlyShift.objects.filter(user=User.objects.get(id=request.GET.get('userId')))
+        for shift in context['shifts']:
+            shift.work_date = shift.work_date.strftime('%Y-%m-%d')
+            shift.start_time = shift.start_time.strftime('%H:%M')
+            shift.end_time = shift.end_time.strftime('%H:%M')
 
     return render(request, "adminManageShifts.html", context)
 

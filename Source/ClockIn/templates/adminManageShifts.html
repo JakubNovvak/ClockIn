@@ -43,16 +43,16 @@
             <ul>
                 {% for shift in shifts %}
                     <li style="margin-bottom: 10px;">
-                        <form style="display: flex; flex-direction: row; align-items: center;" action="{% url 'edit_shift' shift.id %}" method="POST">
+                        <form style="display: flex; flex-direction: row; align-items: center;" method="POST">
                             {% csrf_token %}
                             <label>Data:</label>
-                            <input type="date" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="date" value="{{ shift.date }}">
+                            <input type="date" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="work_date" value="{{ shift.work_date }}">
 
                             <label>Godzina rozpoczęcia:</label>
-                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="startTime" value="{{ shift.start_time }}">
+                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="start_time" value="{{ shift.start_time }}">
 
                             <label>Godzina zakończenia:</label>
-                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="endTime" value="{{ shift.end_time }}">
+                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="end_time" value="{{ shift.end_time }}">
 
                             <button type="submit" class="btn btn-dark">Zatwierdź</button>
                         </form>
