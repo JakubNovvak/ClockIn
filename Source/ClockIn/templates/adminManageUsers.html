@@ -23,28 +23,47 @@
         {% if users %}
             <table class="table" style="max-width: 1000px;">
                 <tr>
-                    <th>Login</th>
                     <th>Imię</th>
                     <th>Nazwisko</th>
+                    <th>Login</th>
+                    <th>E-mail</th>
+                    <th>Dział</th>
                     <th>Stawka godzinowa (zł)</th>
+                    <th>Aktywne</th>
                     <th>Akcja</th>
                 </tr>
 
                 {% for user in users %}
                     <tr>
-                        <form action="{% url 'edit_user' user.id %}" method="POST">
+                        <form action="" method="POST">
                             {% csrf_token %}
+                            <td>
+                                <input type="text" class="form-control" name="name" value="{{ user.first_name }}" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="surname" value="{{ user.last_name }}" required>
+                            </td>
                             <td>
                                 <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
+                                <input type="text" class="form-control" name="email" value="{{ user.email }}" required>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="surname" value="{{ user.surname }}" required>
+                                <select class="form-select" name="department_id" id="department_id">
+                                    <option value="">Wszystkie</option>
+                                    {% for department in departments %}
+                                        <option value="{{ department.id }}" {% if user.department_id == department.id %}selected{% endif %}>
+                                            {{ department.department_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </td>
                             <td>
-                                <input type="number" class="form-control" name="hourlyPay" value="{{ user.hourlyPay }}" required>
+                                <input type="text" class="form-control" style="min-width: 200px;" name="hourlyRate" value="{{ user.hourly_rate }}" required>
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-control" name="is_active" value="{{ user.is_active }}" required>
                             </td>
                             <td>
                                 <button class="btn btn-dark" type="submit">Zatwierdź</button>

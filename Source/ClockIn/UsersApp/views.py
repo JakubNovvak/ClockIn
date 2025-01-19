@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login , logout
 from django.contrib import messages
-from UsersApp.models import User
+from UsersApp.models import User, Department
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.hashers import make_password
 
@@ -80,10 +80,14 @@ def admin_add_user(request):
 @user_passes_test(admin_required, login_url='/')
 def admin_manage_users(request):
     context = {
-        
+        'users': [],
+        'departments': []
     }
 
-    # TODO: logika zarządzania użytkownikami
+    context['users'] = User.objects.filter(is_superuser=False)
+    context['departments'] = Department.objects.all()
+
+    
 
     return render(request, 'adminManageUsers.html', context)
 
