@@ -432,7 +432,7 @@ def admin_manage_shifts(request):
         for shift in context['shifts']:
             shift.work_date = shift.work_date.strftime('%Y-%m-%d')
             shift.start_time = shift.start_time.strftime('%H:%M')
-            shift.end_time = shift.end_time.strftime('%H:%M')
+            shift.end_time = shift.end_time.strftime('%H:%M') if shift.end_time != None else None
 
     return render(request, "adminManageShifts.html", context)
 

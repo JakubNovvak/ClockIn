@@ -52,7 +52,7 @@
                             <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="start_time" value="{{ shift.start_time }}">
 
                             <label>Godzina zakończenia:</label>
-                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="end_time" value="{{ shift.end_time }}">
+                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" id="end_time" name="end_time" value="{{ shift.end_time }}">
 
                             <button type="submit" class="btn btn-dark">Zatwierdź</button>
                         </form>
@@ -64,6 +64,14 @@
         {% endif %}
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById("end_time");
+            if (!input.value) { 
+                input.style.backgroundColor = "#ffb0b0";
+            }
+        });
+    </script>
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 </body>
