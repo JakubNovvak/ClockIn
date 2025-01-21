@@ -9,11 +9,11 @@
 </head>
 <body>
     {% include "adminNavBar.html" %}
-
+        <hr>
         <div class="row mt-4" style="margin-left: 30px;">
             <!-- Lewa kolumna z formularzem -->
             <div class="col-md-5">
-                <h2>Dodawanie nowego użytkownika</h2>
+                <h1>Dodawanie nowego użytkownika</h1>
                 <br>
                 <form action="{% url 'add_user' %}" method="POST">
                     {% csrf_token %}
