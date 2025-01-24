@@ -66,7 +66,7 @@
                 <div class="alert alert-success">
                     Wynagrodzenie pracownika {{ selected_user.first_name }} {{ selected_user.last_name}}: <strong>{{ salary }} zł</strong> <br>
                     Okres od: {{ start_date}} do {{end_date}} <br>
-                    Stawka godzinowa: {{ user.hourly_rate }} zł
+                    Stawka godzinowa: {{ selected_user.hourly_rate }} zł
                 </div>
                 {% endif %}
                 {% if errorMessage %}
