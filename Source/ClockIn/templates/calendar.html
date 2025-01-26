@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 10px;
+            height: 50px;
+            width: 10px;
+        }
+        .empty {
+            background-color: #f0f0f0;
+        }
+        .shift-type-1 {
+            background-color: #ffcc00;  /* Kolor dla typu zmiany 1 */
+        }
+        .shift-type-2 {
+            background-color: #00cc00;  /* Kolor dla typu zmiany 2 */
+        }
+        .shift-type-3 {
+            background-color: #ff6666;  /* Kolor dla typu zmiany 3 */
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ month_name }} {{ year }}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Pn</th>
+                <th>Wt</th>
+                <th>Śr</th>
+                <th>Czw</th>
+                <th>Pt</th>
+                <th>Sb</th>
+                <th>Nd</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in weeks %}
+                <tr>
+                    {% for day in week %}
+                        <td class="{% if day %}{% if day.shifts.count > 0 %}shift-type-{{ day.shifts.first.shift_type.id }}{% else %}empty{% endif %}{% else %}empty{% endif %}" 
+                            {% if day and day.shifts.count > 0 %}
+                                data-day="{{ day.day }}"
+                                data-shifts="{{ day.shifts.all|join:", " }}" 
+                            {% endif %} 
+                            onclick="showShiftDetails(event)">
+                            {% if day %}
+                                {{ day.day }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box shift-type-1"></div>
+            <span>Zmiana 1</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box shift-type-2"></div>
+            <span>Zmiana 2</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box shift-type-3"></div>
+            <span>Zmiana 3</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box empty"></div>
+            <span>Brak zmiany</span>
+        </div>
+    </div>
+</body>
+</html>

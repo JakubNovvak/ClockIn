@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClockIn - Panel admina</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    {% include "adminNavBar.html" %}
+    <hr>
+    <div style="margin-left: 30px;">
+        <h1>Zarządzaj zmianami użytkownika</h1>
+
+        <br>
+
+        <form action="{% url 'manage_shifts' %}" method="GET">
+            <label for="userId">Wybierz użytkownika:</label>
+            <div style="display: flex; flex-direction: row;">
+                <select class="form-select" style="max-width: 220px;" name="userId" id="userId">
+                    <option value="">Wybierz użytkownika</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {% if selected_user_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-dark" style="margin-left: 5px;" type="submit">Zatwierdź</button>
+            </div>
+        </form>
+
+        <br>
+
+        {% if message and not shifts %}
+            <p>{{ message }}</p>
+            <a href="{% url 'manage_shifts' %}"><button class="btn btn-secondary">Odśwież</button></a>
+        {% endif %}
+
+        <br>
+
+        {% if selected_user_id and shifts %}
+            <h2>Zmiany użytkownika</h2>
+            <br>
+            <ul>
+                {% for shift in shifts %}
+                    <li style="margin-bottom: 10px;">
+                        <form style="display: flex; flex-direction: row; align-items: center;" action="{% url 'manage_shifts' %}" method="POST">
+                            {% csrf_token %}
+
+                            <input hidden name="selected_user_id" value="{{ selected_user_id }}">
+
+                            <input hidden name="shift_id" value="{{ shift.id }}">
+
+                            <label>Data:</label>
+                            <input type="date" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="work_date" value="{{ shift.work_date }}">
+
+                            <label>Godzina rozpoczęcia:</label>
+                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" name="start_time" value="{{ shift.start_time }}">
+
+                            <label>Godzina zakończenia:</label>
+                            <input type="time" style="max-width: 150px; margin-right: 15px; margin-left: 15px;" class="form-control" id="end_time" name="end_time" value="{{ shift.end_time }}">
+
+                            <button type="submit" class="btn btn-dark">Zatwierdź</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% elif selected_user_id and not message %}
+            <p>Brak zmian do wyświetlenia dla wybranego użytkownika.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById("end_time");
+            if (!input.value) { 
+                input.style.backgroundColor = "#ffb0b0";
+            }
+        });
+    </script>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
