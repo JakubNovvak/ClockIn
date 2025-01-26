@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.utils.timezone import localtime
+from time import localtime
+from django.shortcuts import render, redirect, get_object_or_404
 from datetime import timedelta, datetime
 from UsersApp.views import user_required, admin_required
 from .models import HourlyShift, CalendarShift, ShiftType
@@ -14,7 +14,6 @@ import io
 from reportlab.lib.colors import black
 
 
-# Create your views here.
 @login_required(login_url="/users/login")
 @user_passes_test(user_required, login_url='/users/admin')
 def shifts_view(request):
@@ -285,64 +284,6 @@ def calculate_salary(request):
 
 @login_required(login_url="/users/login")
 @user_passes_test(admin_required, login_url='/')
-def manage_schedule(request):
-    context = {
-        "users": [],
-        "shift_types": ShiftType.objects.all(),
-        "errorMessage": None
-    }
-    users = User.objects.filter(
-        is_superuser = 0  
-    )
-    context["users"] = users
-    
-    if request.method == "POST":
-        user_id = request.POST.get("user_id")
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        shift_type_id = request.POST.get("shift_type_id")
-        start_time = request.POST.get("start_time")
-        end_time = request.POST.get("end_time")
-        
-        if start_date > end_date:
-            context["errorMessage"] = "Data początkowa nie może być późniejsza niż końcowa."
-            return render(request, "manageScheduleView.html", context)
-        if end_time < start_time:
-            context["errorMessage"] = "Godzina rozpoczęcia nie może być późniejsza niż godzina zakończenia."
-            return render(request, "manageScheduleView.html", context)
-        
-        if user_id and start_date and end_date and shift_type_id and start_time and end_time:
-            user = User.objects.get(id=user_id)
-            shift_type = ShiftType.objects.get(id=shift_type_id)
-            
-            overlapping_shifts = CalendarShift.objects.filter(
-                user=user,
-                shift_date__range=(start_date, end_date)
-            )
-            if overlapping_shifts.exists():
-                context["errorMessage"] = "Istnieją już zmiany w wybranym zakresie dat dla tego użytkownika"
-                return render(request, "manageScheduleView.html", context)
-            
-            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-            
-            current_date = start_date_obj
-            while current_date <= end_date_obj:
-                CalendarShift.objects.create(
-                    user=user,
-                    shift_date=current_date,
-                    start_time=start_time,
-                    end_time=end_time,
-                    shift_type=shift_type
-                )
-                current_date += timedelta(days=1)
-        else:
-            context["errorMessage"] = "Wszystkie pola są wymagane"
-        
-    return render(request, "manageScheduleView.html", context)
-
-@login_required(login_url="/users/login")
-@user_passes_test(admin_required, login_url='/')
 def get_user_salary(request):
     context = {
         "departments" : [],
@@ -403,6 +344,135 @@ def get_user_salary(request):
         context["selected_user"] = user
 
     return render(request, "allUsersSalaryView.html", context)
+
+# ------------------FUNKCJE ADMINISTRATORA ------------------------
+
+
+@login_required(login_url="/users/login")
+@user_passes_test(admin_required, login_url='/')
+def manage_schedule(request):
+    context = {
+        "users": [],
+        "shift_types": ShiftType.objects.all(),
+        "errorMessage": None
+    }
+    users = User.objects.filter(
+        is_superuser = 0  
+    )
+    context["users"] = users
+    
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        shift_type_id = request.POST.get("shift_type_id")
+        start_time = request.POST.get("start_time")
+        end_time = request.POST.get("end_time")
+        
+        if start_date > end_date:
+            context["errorMessage"] = "Data początkowa nie może być późniejsza niż końcowa."
+            return render(request, "manageScheduleView.html", context)
+        if end_time < start_time:
+            context["errorMessage"] = "Godzina rozpoczęcia nie może być późniejsza niż godzina zakończenia."
+            return render(request, "manageScheduleView.html", context)
+        
+        if user_id and start_date and end_date and shift_type_id and start_time and end_time:
+            user = User.objects.get(id=user_id)
+            shift_type = ShiftType.objects.get(id=shift_type_id)
+            
+            overlapping_shifts = CalendarShift.objects.filter(
+                user=user,
+                shift_date__range=(start_date, end_date)
+            )
+            if overlapping_shifts.exists():
+                context["errorMessage"] = "Istnieją już zmiany w wybranym zakresie dat dla tego użytkownika"
+                return render(request, "manageScheduleView.html", context)
+            
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            
+            current_date = start_date_obj
+            while current_date <= end_date_obj:
+                CalendarShift.objects.create(
+                    user=user,
+                    shift_date=current_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    shift_type=shift_type
+                )
+                current_date += timedelta(days=1)
+        else:
+            context["errorMessage"] = "Wszystkie pola są wymagane"
+        
+    return render(request, "manageScheduleView.html", context)
+
+
+@login_required(login_url="/users/login")
+@user_passes_test(admin_required, login_url='/')
+def admin_manage_shifts(request):
+    context = {
+        'users': [],
+        'shifts': [],
+        'selected_user_id': None
+    }
+
+    context['users'] = User.objects.all()
+
+    
+    if request.method == 'POST':
+        shift_to_update = get_object_or_404(HourlyShift, id=request.POST.get("shift_id"))
+
+        # Pobranie wartości z formularza
+        work_date_str = request.POST.get("work_date")  # YYYY-MM-DD
+        start_time_str = request.POST.get("start_time")  # HH:MM
+        end_time_str = request.POST.get("end_time")  # HH:MM
+
+        # Utworzenie obiektu daty
+        work_date = datetime.strptime(work_date_str, '%Y-%m-%d').date()
+
+        # Utworzenie obiektów czasu
+        start_time = datetime.strptime(start_time_str, '%H:%M').timetz()
+        end_time = datetime.strptime(end_time_str, '%H:%M').timetz()
+
+        # Pełna timedate dla start_time
+        start_datetime = datetime.combine(work_date, start_time)
+
+        # Sprawdzenie, czy końcowa godzina jest późniejsza od start_time
+        if end_time < start_time:
+            # Dodaj dzień do daty end_time
+            end_datetime = datetime.combine(work_date + timedelta(days=1), end_time)
+        else:
+            # Ten sam dzień dla end_time
+            end_datetime = datetime.combine(work_date, end_time)
+
+        # TODO: Zmienić tymczasowe rozwiązanie, z dodawaniem jednej godziny przy strefach czasowych
+        start_datetime += timedelta(hours=1)
+        end_datetime += timedelta(hours=1)
+
+        # Aktualizacja rekordu
+        shift_to_update.work_date = work_date  # Tylko data bez godziny
+        shift_to_update.start_time = start_datetime  # Pełne datetime
+        shift_to_update.end_time = end_datetime  # Pełne datetime
+
+        print(shift_to_update.start_time)
+
+        shift_to_update.save()
+
+        context['selected_user_id'] = int(request.POST.get("selected_user_id"))
+        context['shifts'] = HourlyShift.objects.filter(user=User.objects.get(id=request.POST.get("selected_user_id")))
+
+    if request.GET.get('userId'):
+
+        context["selected_user_id"] = int(request.GET.get('userId'))
+        context['shifts'] = HourlyShift.objects.filter(user=User.objects.get(id=request.GET.get('userId')))
+
+
+    for shift in context['shifts']:
+        shift.work_date = shift.work_date.strftime('%Y-%m-%d')
+        shift.start_time = shift.start_time.strftime('%H:%M')
+        shift.end_time = shift.end_time.strftime('%H:%M') if shift.end_time != None else None
+
+    return render(request, "adminManageShifts.html", context)
 
 
 # ---------------------FUNKCJE POMOCNICZE--------------------------
